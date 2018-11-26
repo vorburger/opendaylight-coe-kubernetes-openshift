@@ -1,6 +1,8 @@
 #!/bin/sh
 set -ex
 
+# TODO Better security via --remote-ip <ip-address> with CIDR notation (default for IPv4 rule: 0.0.0.0/0) for internal network, only.
+
 openstack security group create k8s-master
 openstack security group rule create k8s-master --protocol TCP --dst-port 6443:6443
 openstack security group rule create k8s-master --protocol TCP --dst-port 2379:2379
