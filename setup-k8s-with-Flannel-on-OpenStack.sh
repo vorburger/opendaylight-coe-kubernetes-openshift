@@ -16,7 +16,7 @@ get_private_IP() {
     local IP=$(openstack server list --name $NAME -c Networks --format value | sed 's/private=\([0-9.]\+\).*/\1/')
     # TODO check that $IP is not empty, wait longer if it is, eventually abandon
     echo $IP
-    #
+    # ^^ NB Bash foo - must "echo" not "return" for non-numeric reply.
 }
 
 openstack server create --flavor m1.medium --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-master
@@ -25,8 +25,17 @@ openstack server add floating ip $NAME_PREFIX-master $MASTER_PUBLIC_IP
 sleep 10
 MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
 ssh-keygen -R $MASTER_PUBLIC_IP || true
-ssh -o StrictHostKeyChecking=no fedora@$MASTER_PUBLIC_IP "sudo dnf -y update; sudo reboot now"
-sleep 10
+ssh -o StrictHostKeyChecking=no fedora@$MASTER_PUBLIC_IP "sudo dnf -y update"
+ssh fedora@$MASTER_PUBLIC_IP "sudo reboot now" || true
+# echo "$MASTER_PUBLIC_IP Back from sudo dnf -y update; sudo reboot now"
+
+openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-node
+openstack server add security group $NAME_PREFIX-node k8s-node
+sleep 30
+NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
+ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update'"
+ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo reboot now'" || true
+# echo "$NODE_PRIVATE_IP Back from sudo dnf -y update; sudo reboot now"
 
 scp kubernetes.repo fedora@$MASTER_PUBLIC_IP:
 ssh fedora@$MASTER_PUBLIC_IP "sudo mv ~/kubernetes.repo /etc/yum.repos.d/kubernetes.repo"
@@ -37,12 +46,6 @@ ssh fedora@$MASTER_PUBLIC_IP "sudo kubeadm config images pull"
 ssh fedora@$MASTER_PUBLIC_IP "sudo sysctl net.bridge.bridge-nf-call-iptables=1"
 ssh fedora@$MASTER_PUBLIC_IP "sudo kubeadm init --pod-network-cidr=10.244.0.0/16"
 ssh fedora@$MASTER_PUBLIC_IP "mkdir -p ~/.kube; sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config; sudo chown $(id -u):$(id -g) ~/.kube/config"
-
-openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-node
-openstack server add security group $NAME_PREFIX-node k8s-node
-NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
-ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update; sudo reboot now'"
-sleep 10
 
 # TODO Avoid the copy/paste from above here by externalizing into a separate script...
 scp kubernetes.repo fedora@$MASTER_PUBLIC_IP:
