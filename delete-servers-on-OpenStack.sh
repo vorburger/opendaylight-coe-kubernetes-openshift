@@ -1,5 +1,12 @@
 #!/bin/sh
-set -ex
+set -e
 
-openstack server delete odl-coe-k8s-master-fedora28
-openstack server delete odl-coe-k8s-node1-fedora28
+if [ $# -ne 1 ]; then
+  echo "USAGE: $0 <NAME_PREFIX>"
+  exit -1
+fi
+NAME_PREFIX=$1
+set -x
+
+openstack server delete $NAME_PREFIX-master
+openstack server delete $NAME_PREFIX-node
