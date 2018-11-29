@@ -9,6 +9,7 @@ NAME_PREFIX=$1
 MASTER_PUBLIC_IP=$2
 set -x
 
+# TODO Avoid all 'sleep' by using sth like https://github.com/Jaanki/openstack/blob/master/scripts/create_vm.sh#L26
 # TODO How to send all ssh commands over a single connection, yet still get echo?
 
 get_private_IP() {
@@ -22,7 +23,7 @@ get_private_IP() {
 openstack server create --flavor m1.medium --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-master
 openstack server add security group $NAME_PREFIX-master k8s-master
 openstack server add floating ip $NAME_PREFIX-master $MASTER_PUBLIC_IP
-sleep 10
+sleep 30
 MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
 ssh-keygen -R $MASTER_PUBLIC_IP || true
 ssh -o StrictHostKeyChecking=no fedora@$MASTER_PUBLIC_IP "sudo dnf -y update"
@@ -30,8 +31,8 @@ ssh fedora@$MASTER_PUBLIC_IP "sudo reboot now" || true
 # echo "$MASTER_PUBLIC_IP Back from sudo dnf -y update; sudo reboot now"
 
 openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-node
-openstack server add security group $NAME_PREFIX-node k8s-node
 sleep 30
+openstack server add security group $NAME_PREFIX-node k8s-node
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update'"
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo reboot now'" || true
@@ -57,11 +58,10 @@ ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo systemctl enable kub
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo kubeadm config images pull'"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo sysctl net.bridge.bridge-nf-call-iptables=1'"
 
-# TODO How to get the --token & --discovery-token-ca-cert-hash from the master to kubeadm join on the nodes?
-# ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo kubeadm join $MASTER_PRIVATE_IP:6443 --token $TOKEN --discovery-token-ca-cert-hash $HASH'"
-
-# ssh -t fedora@$MASTER_PUBLIC_IP "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml"
-# sleep 30
-# ssh -t fedora@$MASTER_PUBLIC_IP "kubectl get nodes"
+JOIN_CMD=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubeadm token create --print-join-command")
+ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP sudo $JOIN_CMD"
+ssh -t fedora@$MASTER_PUBLIC_IP "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml"
+sleep 60
+ssh -t fedora@$MASTER_PUBLIC_IP "kubectl get nodes"
 
 # TODO Test that it all really works by running some "hello, world" container... ;-)
