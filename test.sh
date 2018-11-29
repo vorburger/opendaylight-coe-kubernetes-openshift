@@ -1,15 +1,14 @@
 #!/bin/bash
 set -e
 
-# TODO avoid copy/paste between this & setup-k8s-with-Flannel-on-OpenStack.sh, share.. how? "source ./utils.sh" ?
-
-if [ $# -ne 2 ]; then
-  echo "USAGE: $0 <NAME_PREFIX> <COE_DIR>"
+if [ $# -ne 1 ]; then
+  echo "USAGE: $0 <NAME_PREFIX>"
   exit -1
 fi
 NAME_PREFIX=$1
-COE_DIR=$2
 set -x
+
+# TODO avoid copy/paste between this & setup-k8s-with-Flannel-on-OpenStack.sh, share.. how? "source ./utils.sh" ?
 
 get_private_IP() {
     local NAME=$1
@@ -27,11 +26,13 @@ get_public_IP() {
 MASTER_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-master)
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 
-ssh fedora@$MASTER_PUBLIC_IP "sudo dnf install -y openvswitch"
-ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo dnf install -y openvswitch'"
+scp pods/* fedora@$MASTER_PUBLIC_IP:
+ssh fedora@$MASTER_PUBLIC_IP "kubectl apply -f busybox1.yaml -f busybox2.yaml"
+# TODO do we need to "sleep 5" ?
+ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods -o wide"
 
-# Remove Flannel which was installed in setup-k8s-with-Flannel-on-OpenStack.sh
-kubectl delete -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
-ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo reboot now'" || true
-ssh fedora@$MASTER_PUBLIC_IP "sudo reboot now" || true
-sleep 45
+# TODO can we get DNS working?  Or do I have to (somehow... how?!) obtain the IP of busybox2
+# TODO ping from busybox1 to busybox2, pass if OK, fail if NOK
+# ssh fedora@$MASTER_PUBLIC_IP "kubectl exec -it busybox1 ping busybox2"
+
+# TODO create busybox3 on node2 and ping accross
