@@ -62,6 +62,7 @@ JOIN_CMD=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubeadm token create --print-join-co
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP sudo $JOIN_CMD"
 ssh -t fedora@$MASTER_PUBLIC_IP "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml"
 sleep 60
-ssh -t fedora@$MASTER_PUBLIC_IP "kubectl get nodes"
+ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods --all-namespaces"
+ssh fedora@$MASTER_PUBLIC_IP "kubectl get nodes"
 
 # TODO Test that it all really works by running some "hello, world" container... ;-)

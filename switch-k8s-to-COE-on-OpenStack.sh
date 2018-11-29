@@ -30,3 +30,9 @@ NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 
 ssh fedora@$MASTER_PUBLIC_IP "sudo dnf install -y openvswitch"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo dnf install -y openvswitch'"
+
+# Remove Flannel which was installed in setup-k8s-with-Flannel-on-OpenStack.sh
+kubectl delete -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
+ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo reboot now'" || true
+ssh fedora@$MASTER_PUBLIC_IP "sudo reboot now" || true
+sleep 45
