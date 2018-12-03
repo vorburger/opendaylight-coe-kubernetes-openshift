@@ -27,9 +27,8 @@ MASTER_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-master)
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 
 scp pods/* fedora@$MASTER_PUBLIC_IP:
-# TODO remove all busyboxes, to make this reproducible
+ssh fedora@$MASTER_PUBLIC_IP "kubectl delete -f busybox1.yaml -f busybox2.yaml" || true
 ssh fedora@$MASTER_PUBLIC_IP "kubectl apply -f busybox1.yaml -f busybox2.yaml"
-# TODO do we need to "sleep 5" ?
 ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods -o wide"
 
 busybox2_IP=$(ssh -t fedora@38.145.32.175 "kubectl get pod busybox2 --template={{.status.podIP}}")
