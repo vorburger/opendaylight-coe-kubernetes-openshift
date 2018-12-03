@@ -35,3 +35,31 @@ kubectl delete -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c
 ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo reboot now'" || true
 ssh fedora@$MASTER_PUBLIC_IP "sudo reboot now" || true
 sleep 45
+
+
+# TODO Replace these "raw" odlCNIPlugin & Watcher binaries and ODL distribution with their respective containerized versions ...
+
+# build-COE.sh $COE_DIR
+scp $COE_DIR/odlCNIPlugin/odlovs-cni/odlovs-cni fedora@$MASTER_PUBLIC_IP:
+scp $COE_DIR/odlCNIPlugin/watcher/watcher fedora@$MASTER_PUBLIC_IP:
+
+scp etc/* fedora@$MASTER_PUBLIC_IP:
+ssh -t fedora@$MASTER_PUBLIC_IP "sudo mkdir -p /etc/cni/net.d/"
+ssh -t fedora@$MASTER_PUBLIC_IP "sudo cp master.odlovs-cni.conf /etc/cni/net.d/"
+
+ssh -t fedora@$MASTER_PUBLIC_IP "scp worker1.odlovs-cni.conf $NODE_PRIVATE_IP:"
+ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo mkdir -p /etc/cni/net.d/'"
+ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo cp worker1.odlovs-cni.conf /etc/cni/net.d/'"
+
+# TODO intro ODL_DIR (or not; it will be pulled from a container registry ASAP anyway...)
+scp /home/vorburger/dev/ODL/git/netvirt/karaf/target/karaf-0.8.0-SNAPSHOT.tar.gz fedora@$MASTER_PUBLIC_IP:
+ssh -t fedora@$MASTER_PUBLIC_IP "tar xvzf karaf*.tar.gz"
+
+echo "Please run the following x3 processes in separate Terminal windows now..."
+# We don't integrate Java installation above, because this is very temporary; it will be in the container instead of master ASAP
+echo "sudo dnf install java-1.8.0-openjdk-headless"
+echo "karaf-0.8.0-SNAPSHOT/bin/karaf"
+echo "opendaylight-karaf>feature:install odl-netvirt-coe"
+# TODO CNI_COMMAND ??
+echo "./odlovs-cni"
+echo "./watcher odl"
