@@ -27,12 +27,14 @@ MASTER_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-master)
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 
 scp pods/* fedora@$MASTER_PUBLIC_IP:
+# TODO remove all busyboxes, to make this reproducible
 ssh fedora@$MASTER_PUBLIC_IP "kubectl apply -f busybox1.yaml -f busybox2.yaml"
 # TODO do we need to "sleep 5" ?
 ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods -o wide"
 
-# TODO can we get DNS working?  Or do I have to (somehow... how?!) obtain the IP of busybox2
-# TODO ping from busybox1 to busybox2, pass if OK, fail if NOK
-# ssh fedora@$MASTER_PUBLIC_IP "kubectl exec -it busybox1 ping busybox2"
+busybox2_IP=$(ssh -t fedora@38.145.32.175 "kubectl get pod busybox2 --template={{.status.podIP}}")
+ssh fedora@$MASTER_PUBLIC_IP "kubectl exec -it busybox1 -- ping -c 1 -w 1 $busybox2_IP"
 
 # TODO create busybox3 on node2 and ping accross
+
+# TODO deploy a web server and get hello world welcome page via HTTP and using service DNS name instead of IP
