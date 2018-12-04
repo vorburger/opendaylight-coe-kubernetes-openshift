@@ -8,27 +8,14 @@ fi
 NAME_PREFIX=$1
 set -x
 
-# TODO avoid copy/paste between this & setup-k8s-with-Flannel-on-OpenStack.sh, share.. how? "source ./utils.sh" ?
-
-get_private_IP() {
-    local NAME=$1
-    local IP=$(openstack server list --name $NAME -c Networks --format value | sed 's/private=\([0-9.]\+\).*/\1/')
-    # TODO check that $IP is not empty, wait longer if it is, eventually abandon
-    echo $IP
-    # ^^ NB Bash foo - must "echo" not "return" for non-numeric reply.
-}
-get_public_IP() {
-    local NAME=$1
-    local IP=$(openstack server list --name $NAME -c Networks --format value | sed 's/private=\([0-9.]\+\), \([0-9.]\+\)/\2/')
-    # TODO check that $IP is not empty, wait longer if it is, eventually abandon
-    echo $IP
-}
+source ./utils.sh
 MASTER_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-master)
-NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 
 scp pods/* fedora@$MASTER_PUBLIC_IP:
 ssh fedora@$MASTER_PUBLIC_IP "kubectl delete -f busybox1.yaml -f busybox2.yaml" || true
 ssh fedora@$MASTER_PUBLIC_IP "kubectl apply -f busybox1.yaml -f busybox2.yaml"
+# TODO await Pod STATUS Running instead of sleep
+sleep 5
 ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods -o wide"
 
 busybox2_IP=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubectl get pod busybox2 --template={{.status.podIP}}")
