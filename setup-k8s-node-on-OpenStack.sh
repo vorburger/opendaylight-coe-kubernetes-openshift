@@ -8,13 +8,16 @@ fi
 NAME_PREFIX=$1
 MASTER_PUBLIC_IP=$2
 NODE_NUMBER=$3
+HOSTNAME=$NAME_PREFIX-node$NODE_NUMBER
 set -x
 
 source ./utils.sh
 
-openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-node$NODE_NUMBER
+openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $HOSTNAME
 openstack server add security group $NAME_PREFIX-node$NODE_NUMBER k8s-node
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node$NODE_NUMBER)
+# Sleep is still needed, even though get_private_IP() checks for ACTIVE and IP :()
+sleep 10
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update'"
 # TODO Install cockpit-kubernetes when figured out how to avoid https://github.com/vorburger/opendaylight-coe-kubernetes-openshift/issues/1
 ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo dnf -y install cockpit cockpit-bridge cockpit-dashboard cockpit-docker cockpit-networkmanager cockpit-selinux cockpit-system'"
@@ -34,3 +37,6 @@ ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo sysctl net.bridge.br
 
 JOIN_CMD=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubeadm token create --print-join-command")
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP sudo $JOIN_CMD"
+
+# Label the node so that we can constrain scheduling pods onto specific ones, which is useful for tests
+ssh -t fedora@$MASTER_PUBLIC_IP "kubectl label nodes $HOSTNAME.rdocloud n=$NODE_NUMBER"
