@@ -13,7 +13,6 @@ set -x
 source ./utils.sh
 
 openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-node$NODE_NUMBER
-sleep 30
 openstack server add security group $NAME_PREFIX-node$NODE_NUMBER k8s-node
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node$NODE_NUMBER)
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update'"

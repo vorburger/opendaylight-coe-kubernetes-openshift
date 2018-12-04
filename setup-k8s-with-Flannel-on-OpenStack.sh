@@ -18,7 +18,6 @@ source ./utils.sh
 openstack server create --flavor m1.medium --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-master
 openstack server add security group $NAME_PREFIX-master k8s-master
 openstack server add floating ip $NAME_PREFIX-master $MASTER_PUBLIC_IP
-sleep 30
 MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
 ssh-keygen -R $MASTER_PUBLIC_IP || true
 ssh -o StrictHostKeyChecking=no fedora@$MASTER_PUBLIC_IP "sudo dnf -y update"
