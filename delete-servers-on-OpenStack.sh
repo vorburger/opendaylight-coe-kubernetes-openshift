@@ -8,5 +8,4 @@ fi
 NAME_PREFIX=$1
 set -x
 
-openstack server delete $NAME_PREFIX-master
-openstack server delete $NAME_PREFIX-node
+openstack server list -c Name --format value | grep ^$NAME_PREFIX- | xargs openstack server delete
