@@ -45,6 +45,8 @@ scp $COE_DIR/odlCNIPlugin/watcher/watcher fedora@$MASTER_PUBLIC_IP:
 
 scp etc/* fedora@$MASTER_PUBLIC_IP:
 ssh -t fedora@$MASTER_PUBLIC_IP "sudo mkdir -p /etc/cni/net.d/"
+# Remove 10-flannel.conflist or similar which may be left over from previous SDN
+ssh -t fedora@$MASTER_PUBLIC_IP "sudo rm -v /etc/cni/net.d/*"
 ssh -t fedora@$MASTER_PUBLIC_IP "sudo cp master.odlovs-cni.conf /etc/cni/net.d/"
 
 ssh -t fedora@$MASTER_PUBLIC_IP "scp worker1.odlovs-cni.conf $NODE_PRIVATE_IP:"
