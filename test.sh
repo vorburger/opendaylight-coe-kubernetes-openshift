@@ -31,7 +31,7 @@ ssh fedora@$MASTER_PUBLIC_IP "kubectl delete -f busybox1.yaml -f busybox2.yaml" 
 ssh fedora@$MASTER_PUBLIC_IP "kubectl apply -f busybox1.yaml -f busybox2.yaml"
 ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods -o wide"
 
-busybox2_IP=$(ssh -t fedora@38.145.32.175 "kubectl get pod busybox2 --template={{.status.podIP}}")
+busybox2_IP=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubectl get pod busybox2 --template={{.status.podIP}}")
 ssh fedora@$MASTER_PUBLIC_IP "kubectl exec -it busybox1 -- ping -c 1 -w 1 $busybox2_IP"
 
 # TODO create busybox3 on node2 and ping accross
