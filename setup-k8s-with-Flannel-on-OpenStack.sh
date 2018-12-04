@@ -27,8 +27,9 @@ sleep 30
 MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
 ssh-keygen -R $MASTER_PUBLIC_IP || true
 ssh -o StrictHostKeyChecking=no fedora@$MASTER_PUBLIC_IP "sudo dnf -y update"
+ssh fedora@$MASTER_PUBLIC_IP "sudo dnf -y install cockpit cockpit-bridge cockpit-dashboard cockpit-kubernetes cockpit-docker cockpit-networkmanager cockpit-selinux cockpit-system"
+ssh fedora@$MASTER_PUBLIC_IP "sudo systemctl enable --now cockpit.socket"
 ssh fedora@$MASTER_PUBLIC_IP "sudo reboot now" || true
-# echo "$MASTER_PUBLIC_IP Back from sudo dnf -y update; sudo reboot now"
 
 openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $NAME_PREFIX-node
 sleep 30
@@ -36,7 +37,6 @@ openstack server add security group $NAME_PREFIX-node k8s-node
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update'"
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo reboot now'" || true
-# echo "$NODE_PRIVATE_IP Back from sudo dnf -y update; sudo reboot now"
 
 scp kubernetes.repo fedora@$MASTER_PUBLIC_IP:
 ssh fedora@$MASTER_PUBLIC_IP "sudo mv ~/kubernetes.repo /etc/yum.repos.d/kubernetes.repo"

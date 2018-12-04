@@ -10,6 +10,8 @@ openstack security group rule create k8s-master --protocol TCP --dst-port 2380:2
 openstack security group rule create k8s-master --protocol TCP --dst-port 10250:10250
 openstack security group rule create k8s-master --protocol TCP --dst-port 10251:10251
 openstack security group rule create k8s-master --protocol TCP --dst-port 10252:10252
+# Port 9090 is for https://cockpit-project.org (HTTPS)
+openstack security group rule create k8s-master --protocol TCP --dst-port 9090:9090
 
 openstack security group create k8s-node
 openstack security group rule create k8s-node --protocol TCP --dst-port 10250:10250
