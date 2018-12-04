@@ -21,6 +21,7 @@ ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP '
 ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo dnf -y install cockpit cockpit-bridge cockpit-dashboard cockpit-docker cockpit-networkmanager cockpit-selinux cockpit-system'"
 ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo systemctl enable --now cockpit.socket'"
 ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo reboot now'" || true
+sleep 10
 
 # TODO Avoid the copy/paste from above here by externalizing into a separate script...
 scp kubernetes.repo fedora@$MASTER_PUBLIC_IP:
