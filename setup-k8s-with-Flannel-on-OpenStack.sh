@@ -36,7 +36,9 @@ sleep 30
 openstack server add security group $NAME_PREFIX-node k8s-node
 NODE_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node)
 ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo dnf -y update'"
-ssh fedora@$MASTER_PUBLIC_IP "ssh -o StrictHostKeyChecking=no $NODE_PRIVATE_IP 'sudo reboot now'" || true
+ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo dnf -y install cockpit cockpit-bridge cockpit-dashboard cockpit-kubernetes cockpit-docker cockpit-networkmanager cockpit-selinux cockpit-system'"
+ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo systemctl enable --now cockpit.socket'"
+ssh fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo reboot now'" || true
 
 scp kubernetes.repo fedora@$MASTER_PUBLIC_IP:
 ssh fedora@$MASTER_PUBLIC_IP "sudo mv ~/kubernetes.repo /etc/yum.repos.d/kubernetes.repo"
@@ -46,7 +48,7 @@ ssh fedora@$MASTER_PUBLIC_IP "sudo systemctl enable kubelet && systemctl start k
 ssh fedora@$MASTER_PUBLIC_IP "sudo kubeadm config images pull"
 ssh fedora@$MASTER_PUBLIC_IP "sudo sysctl net.bridge.bridge-nf-call-iptables=1"
 ssh fedora@$MASTER_PUBLIC_IP "sudo kubeadm init --pod-network-cidr=10.244.0.0/16"
-ssh fedora@$MASTER_PUBLIC_IP "mkdir -p ~/.kube; sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config; sudo chown $(id -u):$(id -g) ~/.kube/config"
+ssh fedora@$MASTER_PUBLIC_IP "mkdir -p ~/.kube; sudo cp /etc/kubernetes/admin.conf ~/.kube/config; sudo chown $(id -u):$(id -g) ~/.kube/config"
 
 # TODO Avoid the copy/paste from above here by externalizing into a separate script...
 scp kubernetes.repo fedora@$MASTER_PUBLIC_IP:
@@ -60,9 +62,12 @@ ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo sysctl net.bridge.br
 
 JOIN_CMD=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubeadm token create --print-join-command")
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP sudo $JOIN_CMD"
+
+# Set up Flannel
 ssh -t fedora@$MASTER_PUBLIC_IP "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml"
 sleep 60
 ssh fedora@$MASTER_PUBLIC_IP "kubectl get pods --all-namespaces"
 ssh fedora@$MASTER_PUBLIC_IP "kubectl get nodes"
+# ssh fedora@$MASTER_PUBLIC_IP "kubectl describe nodes"
 
 # TODO Test that it all really works by running some "hello, world" container... ;-)
