@@ -33,6 +33,4 @@ ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-commo
 NODE2_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node2)
 ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$NODE2_PRIVATE_IP: ; ssh $USER@$NODE2_PRIVATE_IP ./remote-setup-common.sh"
 
-scp hosts $USER@$ANSIBLE_PUBLIC_IP:
-ssh $USER@$ANSIBLE_PUBLIC_IP "sudo cp hosts /etc/ansible/"
-ssh $USER@$ANSIBLE_PUBLIC_IP "./remote-setup-ansible.sh"
+./run-ansible-OpenShift-on-OpenStack.sh $NAME_PREFIX
