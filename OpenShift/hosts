@@ -1,0 +1,24 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+lb
+
+[OSEv3:vars]
+openshift_deployment_type=origin
+ansible_ssh_user=fedora
+ansible_become=true
+
+[masters]
+192.168.0.10
+
+[nodes]
+192.168.0.12
+192.168.0.38
+
+[etcd]
+192.168.0.10
+
+[lb]
+# 192.168.0.10
+
