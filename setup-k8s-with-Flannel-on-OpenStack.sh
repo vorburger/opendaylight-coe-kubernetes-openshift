@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eu
 
 if [ $# -ne 3 ]; then
   echo "USAGE: $0 <NAME_PREFIX> <MASTER_PUBLIC_IP> <HOW-MANY-NODES>"

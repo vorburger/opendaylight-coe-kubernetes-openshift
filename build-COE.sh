@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eu
 
 if [ $# -ne 1 ]; then
   echo "USAGE: $0 <COE_DIR>"

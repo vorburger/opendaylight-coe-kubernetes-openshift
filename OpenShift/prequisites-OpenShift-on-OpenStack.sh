@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -eux
 
 # see https://docs.okd.io/latest/install/prerequisites.html#required-ports
 # and https://docs.okd.io/latest/install_config/configuring_openstack.html#configuring-a-security-group-openstack

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -eux
 
 git clone https://github.com/openshift/openshift-ansible
 cd openshift-ansible

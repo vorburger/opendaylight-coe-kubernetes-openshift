@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -eux
 
 # TODO Cockpit? Later..
 # NB We install "ansible pyOpenSSL" on all hosts, not just the ansible jump host, to work around playbooks/prerequisites.yml failure "No module named yaml"

@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -eux
 
 # TODO Better security via --remote-ip <ip-address> with CIDR notation (default for IPv4 rule: 0.0.0.0/0) for internal network, only.
 
