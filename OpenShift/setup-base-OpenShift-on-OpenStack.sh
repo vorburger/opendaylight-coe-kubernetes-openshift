@@ -26,11 +26,4 @@ scp -o StrictHostKeyChecking=no {remote-setup-common.sh,remote-setup-ansible.sh}
 ssh $USER@$ANSIBLE_PUBLIC_IP "./remote-setup-common.sh"
 sleep 10
 
-MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
-ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$MASTER_PRIVATE_IP: ; ssh $USER@$MASTER_PRIVATE_IP ./remote-setup-common.sh"
-NODE1_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node1)
-ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$NODE1_PRIVATE_IP: ; ssh $USER@$NODE1_PRIVATE_IP ./remote-setup-common.sh"
-NODE2_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node2)
-ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$NODE2_PRIVATE_IP: ; ssh $USER@$NODE2_PRIVATE_IP ./remote-setup-common.sh"
-
 ./run-ansible-OpenShift-on-OpenStack.sh $NAME_PREFIX

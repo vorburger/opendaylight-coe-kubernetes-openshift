@@ -12,6 +12,10 @@ MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
 NODE1_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node1)
 NODE2_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node2)
 
+ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$MASTER_PRIVATE_IP: ; ssh $USER@$MASTER_PRIVATE_IP ./remote-setup-common.sh"
+ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$NODE1_PRIVATE_IP: ; ssh $USER@$NODE1_PRIVATE_IP ./remote-setup-common.sh"
+ssh $USER@$ANSIBLE_PUBLIC_IP "scp -o StrictHostKeyChecking=no remote-setup-common.sh $USER@$NODE2_PRIVATE_IP: ; ssh $USER@$NODE2_PRIVATE_IP ./remote-setup-common.sh"
+
 tee /tmp/hosts > /dev/null << EOF
 [OSEv3:children]
 masters
@@ -21,7 +25,8 @@ lb
 
 [OSEv3:vars]
 openshift_deployment_type=origin
-ansible_ssh_user=fedora
+# openshift_release=3.11.0
+ansible_ssh_user=centos
 ansible_become=true
 
 [masters]
