@@ -1,17 +1,18 @@
 #!/bin/bash
 set -eu
 
-if [ $# -ne 3 ]; then
-  echo "USAGE: $0 <NAME_PREFIX> <MASTER_PUBLIC_IP> <NODE-NUMBER>"
+if [ $# -ne 2 ]; then
+  echo "USAGE: $0 <NAME_PREFIX> <NODE-NUMBER>"
   exit -1
 fi
+
+source ./utils.sh
 NAME_PREFIX=$1
-MASTER_PUBLIC_IP=$2
-NODE_NUMBER=$3
+NODE_NUMBER=$2
 HOSTNAME=$NAME_PREFIX-node$NODE_NUMBER
 set -x
 
-source ./utils.sh
+MASTER_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-master)
 
 openstack server create --flavor m1.small --image Fedora-Cloud-Base-28-1.1.x86_64 --security-group ssh --key-name laptop $HOSTNAME
 openstack server add security group $NAME_PREFIX-node$NODE_NUMBER k8s-node

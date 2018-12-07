@@ -38,7 +38,7 @@ ssh fedora@$MASTER_PUBLIC_IP "mkdir -p ~/.kube; sudo cp /etc/kubernetes/admin.co
 
 NODE_NUMBER=1
 while [ $NODE_NUMBER -le $HOW_MANY_NODES ]; do
-  ./setup-k8s-node-on-OpenStack.sh $NAME_PREFIX $MASTER_PUBLIC_IP $NODE_NUMBER
+  ./setup-k8s-node-on-OpenStack.sh $NAME_PREFIX $NODE_NUMBER
   NODE_NUMBER=$((NODE_NUMBER + 1))
 done
 
