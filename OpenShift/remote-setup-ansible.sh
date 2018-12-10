@@ -7,3 +7,4 @@ git checkout release-3.11
 
 sudo cp ../hosts /etc/ansible/
 ansible-playbook playbooks/prerequisites.yml
+ansible-playbook playbooks/deploy_cluster.yml
