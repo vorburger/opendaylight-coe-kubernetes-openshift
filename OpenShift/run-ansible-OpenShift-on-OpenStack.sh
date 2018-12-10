@@ -33,8 +33,9 @@ ansible_become=true
 $MASTER_PRIVATE_IP
 
 [nodes]
-$NODE1_PRIVATE_IP
-$NODE2_PRIVATE_IP
+$MASTER_PRIVATE_IP openshift_node_group_name='node-config-master'
+$NODE1_PRIVATE_IP openshift_node_group_name='node-config-compute'
+$NODE2_PRIVATE_IP openshift_node_group_name='node-config-compute'
 
 [etcd]
 $MASTER_PRIVATE_IP
