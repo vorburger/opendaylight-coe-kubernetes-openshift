@@ -9,6 +9,7 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.
 sudo sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
 sudo yum -y --enablerepo=epel install ansible pyOpenSSL
 
-sudo yum install -y wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+sudo yum install -y NetworkManager wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
 sudo yum -y update
+sudo systemctl enable --now NetworkManager
 sudo reboot now
