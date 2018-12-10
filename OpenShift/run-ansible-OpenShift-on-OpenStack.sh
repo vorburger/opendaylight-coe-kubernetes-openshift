@@ -24,10 +24,12 @@ etcd
 lb
 
 [OSEv3:vars]
+openshift_release=3.11.0
 openshift_deployment_type=origin
-# openshift_release=3.11.0
 ansible_ssh_user=centos
 ansible_become=true
+# https://github.com/vorburger/opendaylight-coe-kubernetes-openshift/issues/3
+openshift_additional_repos=[{'id': 'centos-okd-ci', 'name': 'centos-okd-ci', 'baseurl' :'http://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin311/', 'gpgcheck' :'0', 'enabled' :'1'}]
 
 [masters]
 $MASTER_PRIVATE_IP
