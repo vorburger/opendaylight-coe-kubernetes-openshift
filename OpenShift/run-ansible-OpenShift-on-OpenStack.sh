@@ -32,6 +32,7 @@ lb
 
 [OSEv3:vars]
 openshift_release=3.11.0
+# some examples use v3.11 with a v prefix and without minor number suffix
 openshift_deployment_type=origin
 ansible_ssh_user=centos
 ansible_become=true
@@ -46,7 +47,7 @@ $MASTER_PRIVATE_IP
 [nodes]
 $MASTER_PRIVATE_IP openshift_node_group_name='node-config-master'
 $NODE1_PRIVATE_IP openshift_node_group_name='node-config-compute'
-$NODE2_PRIVATE_IP openshift_node_group_name='node-config-compute'
+$NODE2_PRIVATE_IP openshift_node_group_name='node-config-infra'
 
 [etcd]
 $MASTER_PRIVATE_IP
