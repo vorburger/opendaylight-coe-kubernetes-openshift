@@ -8,6 +8,7 @@ set -x
 source ../utils.sh
 
 ANSIBLE_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-ansible)
+MASTER_PUBLIC_IP=$(get_public_IP $NAME_PREFIX-master)
 MASTER_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-master)
 NODE1_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node1)
 NODE2_PRIVATE_IP=$(get_private_IP $NAME_PREFIX-node2)
@@ -36,10 +37,16 @@ openshift_release=3.11.0
 openshift_deployment_type=origin
 ansible_ssh_user=centos
 ansible_become=true
+
 # https://github.com/vorburger/opendaylight-coe-kubernetes-openshift/issues/3
 openshift_additional_repos=[{'id': 'centos-okd-ci', 'name': 'centos-okd-ci', 'baseurl' :'http://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin311/', 'gpgcheck' :'0', 'enabled' :'1'}]
+
 # https://github.com/vorburger/opendaylight-coe-kubernetes-openshift/issues/4
 openshift_node_dnsmasq_additional_config_file=/home/centos/ose-dnsmasq.conf
+
+# https://github.com/vorburger/opendaylight-coe-kubernetes-openshift/issues/7
+openshift_master_cluster_public_hostname=$MASTER_PUBLIC_IP
+
 
 [masters]
 $MASTER_PRIVATE_IP
