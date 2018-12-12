@@ -6,5 +6,5 @@ cd openshift-ansible
 git checkout release-3.11
 
 sudo cp ../hosts /etc/ansible/
-ansible-playbook playbooks/prerequisites.yml
-ansible-playbook playbooks/deploy_cluster.yml
+ansible-playbook playbooks/prerequisites.yml | tee ../prerequisites.log
+ansible-playbook playbooks/deploy_cluster.yml | tee ../deploy_cluster.log
