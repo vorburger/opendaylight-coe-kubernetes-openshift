@@ -32,7 +32,7 @@ ssh -t fedora@$MASTER_PUBLIC_IP "scp kubernetes.repo $NODE_PRIVATE_IP:"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo mv ~/kubernetes.repo /etc/yum.repos.d/kubernetes.repo'"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP sudo setenforce 0; sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo dnf install -y docker kubelet kubeadm kubectl --disableexcludes=kubernetes'"
-ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo systemctl enable kubelet && systemctl start kubelet; sudo systemctl enable docker; sudo systemctl start docker'"
+ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo systemctl enable kubelet ; sudo systemctl start kubelet; sudo systemctl enable docker; sudo systemctl start docker'"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo kubeadm config images pull'"
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo sysctl net.bridge.bridge-nf-call-iptables=1'"
 
