@@ -55,3 +55,6 @@ ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP 'sudo cp odlovs-cni-node$N
 
 JOIN_CMD=$(ssh -t fedora@$MASTER_PUBLIC_IP "kubeadm token create --print-join-command")
 ssh -t fedora@$MASTER_PUBLIC_IP "ssh $NODE_PRIVATE_IP sudo $JOIN_CMD"
+
+# Label the node so that we can constrain scheduling pods onto specific ones, which is useful for tests
+ssh -t fedora@$MASTER_PUBLIC_IP "kubectl label nodes $HOSTNAME.rdocloud node=$NODE_NUMBER"
