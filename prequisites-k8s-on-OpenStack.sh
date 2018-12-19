@@ -20,12 +20,14 @@ openstack security group rule create k8s-master --protocol TCP --dst-port 9090:9
 openstack security group rule create k8s-master --protocol TCP --dst-port 6640:6640 --remote-ip 192.168.0.0/24
 openstack security group rule create k8s-master --protocol TCP --dst-port 6653:6653 --remote-ip 192.168.0.0/24
 openstack security group rule create k8s-master --protocol TCP --dst-port 4789:4789 --remote-ip 192.168.0.0/24
+openstack security group rule create k8s-master --protocol UDP --dst-port 4789:4789 --remote-ip 192.168.0.0/24
 
 openstack security group create k8s-node
 openstack security group rule create k8s-node --protocol TCP --dst-port 10250:10250
 openstack security group rule create k8s-node --protocol TCP --dst-port 6640:6640 --remote-ip 192.168.0.0/24
 openstack security group rule create k8s-node --protocol TCP --dst-port 6653:6653 --remote-ip 192.168.0.0/24
 openstack security group rule create k8s-node --protocol TCP --dst-port 4789:4789 --remote-ip 192.168.0.0/24
+openstack security group rule create k8s-node --protocol UDP --dst-port 4789:4789 --remote-ip 192.168.0.0/24
 
 
 # TODO Floating IP
